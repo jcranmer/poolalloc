@@ -14,7 +14,7 @@
 #define DEBUG_TYPE "struct-ret"
 
 #include "assistDS/StructReturnToPointer.h"
-#include "llvm/Attributes.h"
+#include "llvm/IR/Attributes.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/ADT/ValueMap.h"

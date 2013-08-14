@@ -15,20 +15,20 @@
 #define DEBUG_TYPE "dsa-local"
 #include "dsa/DataStructure.h"
 #include "dsa/DSGraph.h"
-#include "llvm/Use.h"
-#include "llvm/InlineAsm.h"
-#include "llvm/Constants.h"
-#include "llvm/Intrinsics.h"
-#include "llvm/DerivedTypes.h"
-#include "llvm/Instructions.h"
-#include "llvm/IntrinsicInst.h"
+#include "llvm/InstVisitor.h"
+#include "llvm/IR/Use.h"
+#include "llvm/IR/InlineAsm.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/Intrinsics.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/IntrinsicInst.h"
 #include "llvm/Support/GetElementPtrTypeIterator.h"
-#include "llvm/Support/InstVisitor.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/FormattedStream.h"
 #include "llvm/Support/Timer.h"
-#include "llvm/DataLayout.h"
+#include "llvm/IR/DataLayout.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/ADT/DenseSet.h"
 #include "llvm/ADT/Triple.h"
@@ -38,7 +38,7 @@
 // FIXME: This should eventually be a FunctionPass that is automatically
 // aggregated into a Pass.
 //
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 
 using namespace llvm;
 
