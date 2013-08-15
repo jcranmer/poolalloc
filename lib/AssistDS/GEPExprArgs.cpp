@@ -120,7 +120,7 @@ bool GEPExprArgs::runOnModule(Module& M) {
             NI->setName(II->getName());
             NI->addAttr(F->getAttributes().getParamAttributes(II->getArgNo() + 1));
           }
-          NewF->setAttributes(NewF->getAttributes().addAttr(
+          NewF->setAttributes(NewF->getAttributes().addAttributes(
               F->getContext(), 0, F->getAttributes().getRetAttributes()));
           // Perform the cloning.
           SmallVector<ReturnInst*,100> Returns;
@@ -131,7 +131,7 @@ bool GEPExprArgs::runOnModule(Module& M) {
             fargs.push_back(ai);
           }
 
-          NewF->setAttributes(NewF->getAttributes().addAttr(
+          NewF->setAttributes(NewF->getAttributes().addAttributes(
               F->getContext(), ~0, F->getAttributes().getFnAttributes()));
           //Get the point to insert the GEP instr.
           SmallVector<Value*, 8> Ops(CI->op_begin()+1, CI->op_end());
@@ -152,30 +152,29 @@ bool GEPExprArgs::runOnModule(Module& M) {
               fargs.at(j)->replaceAllUsesWith(GEP_new);
           }
 
-          SmallVector<AttributeWithIndex, 8> AttributesVec;
+          //use attrbuilder?
 
+          AttributeSet NewCallPAL=AttributeSet();
+          
           // Get the initial attributes of the call
-          AttrListPtr CallPAL = CI->getAttributes();
-          Attributes RAttrs = CallPAL.getRetAttributes();
-          Attributes FnAttrs = CallPAL.getFnAttributes();
-          if (RAttrs.hasAttributes())
-            AttributesVec.push_back(AttributeWithIndex::get(0, RAttrs));
+          AttributeSet CallPAL = CI->getAttributes();
+          AttributeSet RAttrs = CallPAL.getRetAttributes();
+          AttributeSet FnAttrs = CallPAL.getFnAttributes();
+          if (!RAttrs.isEmpty())
+            NewCallPAL=NewCallPAL.addAttributes(F->getContext(),0,RAttrs);
 
           SmallVector<Value*, 8> Args;
           Args.push_back(GEP->getPointerOperand());
           for(unsigned j =1;j<CI->getNumOperands();j++) {
             Args.push_back(CI->getOperand(j));
-            // position in the AttributesVec
-            Attributes Attrs = CallPAL.getParamAttributes(j);
-            if (Attrs.hasAttributes())
-              AttributesVec.push_back(AttributeWithIndex::get(Args.size(), Attrs));
+            // position in the AttributesBuilder
+            AttributeSet Attrs = CallPAL.getParamAttributes(j);
+            if (!Attrs.isEmpty())
+              NewCallPAL=NewCallPAL.addAttributes(F->getContext(),Args.size(),Attrs);
           }
           // Create the new attributes vec.
-          if (FnAttrs.hasAttributes())
-            AttributesVec.push_back(AttributeWithIndex::get(~0, FnAttrs));
-
-          AttrListPtr NewCallPAL = AttrListPtr::get(F->getContext(),
-                                                    AttributesVec);
+          if (!FnAttrs.isEmpty())
+            NewCallPAL=NewCallPAL.addAttributes(F->getContext(),~0, FnAttrs);
 
           CallInst *CallI = CallInst::Create(NewF,Args,"", CI);
           CallI->setCallingConv(CI->getCallingConv());
